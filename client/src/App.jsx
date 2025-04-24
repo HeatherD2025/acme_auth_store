@@ -23,7 +23,10 @@ function App() {
   const [favorites, setFavorites] = useState([]);
 
   useEffect(()=> {
+    const token = window.localStorage.getItem('token');
+    if(token){
     attemptLoginWithToken();
+    }
   }, []);
 
   const attemptLoginWithToken = async()=> {
@@ -48,18 +51,29 @@ function App() {
     const fetchProducts = async()=> {
       const response = await fetch('/api/products');
       const json = await response.json();
+      if(response.ok){
       setProducts(json);
+    }
+    else {
+      console.log(json);
+    }
     };
-
     fetchProducts();
   }, []);
 
   useEffect(()=> {
     const fetchFavorites = async()=> {
-      const response = await fetch(`/api/users/${auth.id}/favorites`);
+      const response = await fetch(`/api/users/${auth.id}/favorites`, {
+        headers: {
+          authorization: window.localStorage.getItem('token')
+        }
+      });
       const json = await response.json();
       if(response.ok){
         setFavorites(json);
+      }
+      else {
+        console.log(json);
       }
     };
     if(auth.id){
@@ -94,7 +108,8 @@ function App() {
       method: 'POST',
       body: JSON.stringify({ product_id }),
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        authorization: window.localStorage.getItem('token')
       }
     });
 
@@ -110,8 +125,10 @@ function App() {
   const removeFavorite = async(id)=> {
     const response = await fetch(`/api/users/${auth.id}/favorites/${id}`, {
       method: 'DELETE',
+      headers: {
+        authorization: window.localStoorage.getItem('token')
+      }
     });
-
     if(response.ok){
       setFavorites(favorites.filter(favorite => favorite.id !== id));
     }

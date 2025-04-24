@@ -74,11 +74,19 @@ const authenticate = async({ username, password })=> {
     throw error;
   }
   const token = await jwt.sign({ id: response.rows[0].id}, JWT_SECRET, { expiresIn: "8h" });
-  console.log(token);
-  return token;
+  return { token };
 };
 
-const findUserWithToken = async(id) => {
+const findUserWithToken = async(token) => {
+  let id;
+  try {
+    const payload = await jwt.verify(token, JWT_SECRET);
+    id = payload.id;
+  } catch (ex) {
+    const error = Error('Not authorized');
+    error.status = 401;
+    throw error;
+  }
   const SQL = `
     SELECT id, username
     FROM users
@@ -91,8 +99,7 @@ const findUserWithToken = async(id) => {
     throw error;
   }
   return response.rows[0];
-
-}
+};
 
 const fetchUsers = async()=> {
   const SQL = `

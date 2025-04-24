@@ -38,20 +38,18 @@ const isLoggedIn = async(req, res, next) => {
     return jwt.sign({id}, JWT_SECRET);
   };
 
-// already have create user, what is needed to make it a registration? Modify the front end?
-
-  // app.post("/register", async (req, res, next) => {
-  //   try {
-  //     const { user_name, password } = req.body;
-  //     const salt = await bcrypt.genSalt(10);
-  //     const hashedPassword = await bcrypt.hash(password, salt);
-  //     const response = await createUser(user_name, hashedPassword);
-  //     const token = setToken(response.id);
-  //     res.status(200).json(token);
-  //   } catch (error) {
-  //     next(error);
-  //   }
-  // });
+  app.post("/register", async (req, res, next) => {
+    try {
+      const { user_name, password } = req.body;
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password, salt);
+      const response = await createUser(user_name, hashedPassword);
+      const token = setToken(response.id);
+      res.status(200).json(token);
+    } catch (error) {
+      next(error);
+    }
+  });
 
 app.post('/api/auth/login', async(req, res, next)=> {
   try {
@@ -121,8 +119,6 @@ app.post('/api/users/:id/products', isLoggedIn, async(req, res, next)=> {
 });
 
 app.post('/api/users/:id/favorites', isLoggedIn, async(req, res, next)=> {
-  console.log("params", req.params.id);
-  console.log("userid", req.user.id);
   try {
     if(req.params.id !== req.user.id){
       const error = Error('Not authorized');
@@ -138,12 +134,12 @@ app.post('/api/users/:id/favorites', isLoggedIn, async(req, res, next)=> {
 
 app.delete('/api/users/:user_id/favorites/:id', isLoggedIn, async(req, res, next)=> {
   try {
-    if(req.params.id !== req.user.id){
+    if(req.params.user_id !== req.user.id){
       const error = Error('Not authorized');
       error.status = 401;
       throw error;
     }
-    await destroyFavorite({ user_id: req.params.user.id, id: req.params.id});
+    await destroyFavorite({ user_id: req.params.user_id, id: req.params.id});
     res.sendStatus(204);
   } catch(ex){
     next(ex);
@@ -169,33 +165,33 @@ const init = async()=> {
   await client.connect();
   console.log('connected to database');
 
-  // await createTables();
-  // console.log('tables created');
+  await createTables();
+  console.log('tables created');
 
-  // const [moe, lucy, ethyl, curly, foo, bar, bazz, quq, fip] = await Promise.all([
-  //   createUser({ username: 'moe', password: 'm_pw'}),
-  //   createUser({ username: 'lucy', password: 'l_pw'}),
-  //   createUser({ username: 'ethyl', password: 'e_pw'}),
-  //   createUser({ username: 'curly', password: 'c_pw'}),
-  //   createProduct({ name: 'foo' }),
-  //   createProduct({ name: 'bar' }),
-  //   createProduct({ name: 'bazz' }),
-  //   createProduct({ name: 'quq' }),
-  //   createProduct({ name: 'fip' })
-  // ]);
+  const [moe, lucy, ethyl, curly, foo, bar, bazz, quq, fip] = await Promise.all([
+    createUser({ username: 'moe', password: 'm_pw'}),
+    createUser({ username: 'lucy', password: 'l_pw'}),
+    createUser({ username: 'ethyl', password: 'e_pw'}),
+    createUser({ username: 'curly', password: 'c_pw'}),
+    createProduct({ name: 'foo' }),
+    createProduct({ name: 'bar' }),
+    createProduct({ name: 'bazz' }),
+    createProduct({ name: 'quq' }),
+    createProduct({ name: 'fip' })
+  ]);
 
   console.log(await fetchUsers());
   console.log(await fetchProducts());
 
-  // const Favorites = await Promise.all([
-  //   createFavorite({ user_id: moe.id, product_id: foo.id}),
-  //   createFavorite({ user_id: moe.id, product_id: bar.id}),
-  //   createFavorite({ user_id: lucy.id, product_id: bazz.id}),
-  //   createFavorite({ user_id: lucy.id, product_id: fip.id})
-  // ]);
+  const Favorites = await Promise.all([
+    createFavorite({ user_id: moe.id, product_id: foo.id}),
+    createFavorite({ user_id: moe.id, product_id: bar.id}),
+    createFavorite({ user_id: lucy.id, product_id: bazz.id}),
+    createFavorite({ user_id: lucy.id, product_id: fip.id})
+  ]);
 
-  // await destroyFavorite({ user_id: moe.id, id: foo.id});
-  // console.log(await fetchProducts(moe.id));
+  await destroyFavorite({ user_id: moe.id, id: foo.id});
+  console.log(await fetchProducts(moe.id));
   console.log('data seeded');
 
   app.listen(port, ()=> console.log(`listening on port ${port}`));

@@ -47,6 +47,7 @@ const createProduct = async({ name })=> {
 };
 
 const createFavorite = async({ user_id, product_id })=> {
+  console.log(user_id, product_id);
   const SQL = `
     INSERT INTO favorites(id, user_id, product_id) VALUES($1, $2, $3) RETURNING *
   `;

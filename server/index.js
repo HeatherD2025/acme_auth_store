@@ -129,7 +129,7 @@ app.post('/api/users/:id/favorites', isLoggedIn, async(req, res, next)=> {
       error.status = 401;
       throw error;
     }
-    res.status(201).send(await createFavorite({user_id: req.params.id, product_id: req.body.product.id}));
+    res.status(201).send(await createFavorite({user_id: req.params.id, product_id: req.body.product_id}));
   }
   catch(ex){
     next(ex);
@@ -169,33 +169,33 @@ const init = async()=> {
   await client.connect();
   console.log('connected to database');
 
-  await createTables();
-  console.log('tables created');
+  // await createTables();
+  // console.log('tables created');
 
-  const [moe, lucy, ethyl, curly, foo, bar, bazz, quq, fip] = await Promise.all([
-    createUser({ username: 'moe', password: 'm_pw'}),
-    createUser({ username: 'lucy', password: 'l_pw'}),
-    createUser({ username: 'ethyl', password: 'e_pw'}),
-    createUser({ username: 'curly', password: 'c_pw'}),
-    createProduct({ name: 'foo' }),
-    createProduct({ name: 'bar' }),
-    createProduct({ name: 'bazz' }),
-    createProduct({ name: 'quq' }),
-    createProduct({ name: 'fip' })
-  ]);
+  // const [moe, lucy, ethyl, curly, foo, bar, bazz, quq, fip] = await Promise.all([
+  //   createUser({ username: 'moe', password: 'm_pw'}),
+  //   createUser({ username: 'lucy', password: 'l_pw'}),
+  //   createUser({ username: 'ethyl', password: 'e_pw'}),
+  //   createUser({ username: 'curly', password: 'c_pw'}),
+  //   createProduct({ name: 'foo' }),
+  //   createProduct({ name: 'bar' }),
+  //   createProduct({ name: 'bazz' }),
+  //   createProduct({ name: 'quq' }),
+  //   createProduct({ name: 'fip' })
+  // ]);
 
   console.log(await fetchUsers());
   console.log(await fetchProducts());
 
-  const Favorites = await Promise.all([
-    createFavorite({ user_id: moe.id, product_id: foo.id}),
-    createFavorite({ user_id: moe.id, product_id: bar.id}),
-    createFavorite({ user_id: lucy.id, product_id: bazz.id}),
-    createFavorite({ user_id: lucy.id, product_id: fip.id})
-  ]);
+  // const Favorites = await Promise.all([
+  //   createFavorite({ user_id: moe.id, product_id: foo.id}),
+  //   createFavorite({ user_id: moe.id, product_id: bar.id}),
+  //   createFavorite({ user_id: lucy.id, product_id: bazz.id}),
+  //   createFavorite({ user_id: lucy.id, product_id: fip.id})
+  // ]);
 
-  await destroyFavorite({ user_id: moe.id, id: foo.id});
-  console.log(await fetchProducts(moe.id));
+  // await destroyFavorite({ user_id: moe.id, id: foo.id});
+  // console.log(await fetchProducts(moe.id));
   console.log('data seeded');
 
   app.listen(port, ()=> console.log(`listening on port ${port}`));
